@@ -1,0 +1,29 @@
+ /*
+ exercicio 01
+
+
+with sinistroCarro as (
+select *
+from sinistro),
+
+placaCarro as (
+select max(placa) as maxPlaca
+from sinistroCarro)
+
+select * from carro where placa in ( select * from placaCarro)
+*/
+
+
+/*
+exercicio 02
+
+select * from cliente
+where nome like '%a%' and nome not like '%a'
+*/
+
+/*
+exercicio 03
+
+select * from cliente
+where cod_cliente not in (select cod_cliente from apolice)
+*/
