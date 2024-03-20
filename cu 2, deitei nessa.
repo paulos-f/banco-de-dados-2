@@ -1,0 +1,127 @@
+/*
+1) Faça um SELECT na tabela MICRODADOS_ENEM_2021_SC listando todas as colunas ( * ) e sem filtro. Gere o
+plano de execução da consulta. Guarde a imagem em algum local para posterior comparação.
+
+select * from MICRODADOS_ENEM_2021_SC
+
+vá para query -> display estimated execution plan
+*/
+
+
+/*
+indice de cobertura resolve problema de lookup 
+se cria indices para resolver clausulas where
+*/
+
+
+/*
+2) Com base no plano de execução gerado pela questão anterior, qual o operador encontrado com o maior
+valor percentual gerado e descreva o que deverá ser feito para resolver o problema encontrado.
+
+Heap - scan 100%
+
+criar um indice clustered e nocustered
+Seek
+
+*/
+
+/*
+3) Verifique se existe algum índice criado para esta tabela. Evidencie abaixo sua verificação através de duas
+formas possíveis (pelo SSMS e por comando sp_helpindex).
+
+sp_helpindex MICRODADOS_ENEM_2021_SC
+
+sem indices
+*/
+
+
+/*
+4) Crie um índice clustered para a tabela MICRODADOS_ENEM_2021_SC chamado
+pk_MICRODADOS_ENEM_2021_SC passando o campo NU_INSCRICAO como chave. Evidencie a criação
+deste índice através do sp_helpindex).
+OBS: Resolva os possíveis impedimentos para criação do índice cluster e informe quais foram, caso existam.
+
+alter table MICRODADOS_ENEM_2021_SC add constraint pk_MICRODADOS_ENEM_2021_SC primary key (NU_INSCRICAO)
+sp_helpindex MICRODADOS_ENEM_2021_SC
+*/
+
+/*
+5) Execute novamente os passos da questão e compare os planos de execução gerados (o plano da questão 1
+com o plano gerado a partir dessa questão). Informe qual o nome do novo operador encontrado no novo
+plano de acesso gerado.
+
+select * from MICRODADOS_ENEM_2021_SC
+clustered porém continua scan
+*/
+
+/*
+6) Faça um SELECT na tabela MICRODADOS_ENEM_2021_SC filtrando o campo NO_MUNICIPIO_ESC pelo valor
+‘Treviso’. Gere o plano de execução e compare com o do exercício anterior. Encontrou alguma diferença?
+
+select no_municipio_esc from MICRODADOS_ENEM_2021_SC where no_municipio_esc = 'Treviso'
+
+não
+*/
+
+
+/*
+7) Execute os comandos SET STATISTICS TIME ON e SET STATISTICS TIME ON, execute novamente a consulta da
+questão anterior e guarde os resultados.
+
+SET STATISTICS TIME ON 
+SET STATISTICS IO ON
+select no_municipio_esc from MICRODADOS_ENEM_2021_SC where no_municipio_esc = 'Treviso'
+
+*/
+
+/*
+08) Com base nas duas consultas geradas (SELECT sem WHERE e SELECT com WHERE Treviso) e compare a
+quantidade de registros retornadas em cada uma, os resultados dos SET STATISTICS e dos planos de acesso.
+Qual a diferença encontrada entre eles?
+
+select no_municipio_esc from MICRODADOS_ENEM_2021_SC where no_municipio_esc = 'Treviso'
+select no_municipio_esc from MICRODADOS_ENEM_2021_SC
+
+COM where le a msm quantidade, porém, mais rapido.
+*/
+
+
+/*
+09) Crie um índice nonclustered chamado idx_ NO_MUNICIPIO_ESC na tabela MICRODADOS_ENEM_2021_SC
+usando o campo NO_MUNICIPIO_ESC como chave do índice. Evidencie a criação deste índice através do
+sp_helpindex).
+
+create index idx_NO_MUNICIPIO_ESC on MICRODADOS_ENEM_2021_SC (no_municipio_esc)
+sp_helpindex MICRODADOS_ENEM_2021_SC
+
+*/
+
+/*
+10)
+Execute as duas consultas abaixo e compare novamente as diferenças entre os planos de acesso de cada
+uma, das informações geradas pelo SET STATISTICS e também pela quantidade de registros retornados de
+cada uma. Evidencie as diferenças encontradas entre elas.
+SELECT NO_MUNICIPIO_ESC, TP_ESCOLA
+FROM MICRODADOS_ENEM_2021_SC WHERE NO_MUNICIPIO_ESC = 'Treviso'
+SELECT NO_MUNICIPIO_ESC, TP_ESCOLA
+FROM MICRODADOS_ENEM_2021_SC
+
+logical reads 32
+
+logical reads 2977
+*/
+
+
+/*
+11)
+Resolva o problema do operador Key Lookup encontrado na consulta abaixo:
+SELECT NO_MUNICIPIO_ESC, TP_ESCOLA
+FROM MICRODADOS_ENEM_2021_SC WHERE NO_MUNICIPIO_ESC = 'Treviso'
+
+
+drop index idx_NO_MUNICIPIO_ESC on MICRODADOS_ENEM_2021_SC
+
+create index idx_NO_MUNICIPIO_ESC on MICRODADOS_ENEM_2021_SC (no_municipio_esc) include (TP_ESCOLa)
+
+sp_helpindex MICRODADOS_ENEM_2021_SC
+*/
