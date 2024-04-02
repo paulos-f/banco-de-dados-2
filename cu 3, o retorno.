@@ -1,0 +1,29 @@
+1)
+--SESSÃO 01
+
+begin tran
+
+select @@TRANCOUNT
+
+USE [paulin]
+GO
+
+INSERT INTO [dbo].[carro]
+           ([placa]
+           ,[modelo]
+           ,[chassi]
+           ,[marca]
+           ,[ano]
+           ,[cor])
+     VALUES
+           ('RLC3834'
+           ,'TRACKER'
+           ,'269874161875'
+           ,'GM'
+           ,'2021'
+           ,'BRANCO')
+GO
+
+ROLLBACK
+
+2)
