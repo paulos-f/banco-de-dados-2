@@ -1,4 +1,9 @@
-1)
+1) Abra uma sessão no SSMS (sessão 1) Inicie uma transação explícita e valide pela @@trancount se a transação foi aberta (@@trancount = 1).
+Assim que for confirmado que a transação foi aberta, faça um INSERT na tabela carro com os seguintes dados:
+
+placa 'RLC3834',modelo 'TRACKER',chassi '269874161875',marca 'GM',ano '2021',cor 'BRANCO'
+
+R=
 --SESSÃO 01
 
 begin tran
@@ -26,4 +31,69 @@ GO
 
 ROLLBACK
 
-2)
+2) Abra uma outra sessão no SSMS (sessão 2) e faça um SELECT na tabela carro. O comando executou com sucesso (permitiu a leitura)?
+Não rodou.
+
+3) Abra uma outra sessão 3, execute a consulta abaixo e explique/justifique a resposta da questão 2.
+
+R= Devido a sessão "51" da tabela carro do banco "paulin" está  proibido de ser usado.
+
+4) Ainda na sessão 2, cancele o SELECT na questão 2 e execute o mesmo SELECT só que agora com o hint NOLOCK. 
+O comando executou com sucesso (permitiu a leitura)? Por quê? Veja se consegue visualizar o novo carro adicionado (leitura suja)?
+
+R= Agora você consegue vizualizar a tabela, porém, os dados estão "sujos".
+
+5) Retorne a sessão 1 e execute o comando ROLLBACK. Faça um SELECT na tabela carro e veja se o carro que foi adicionado pela questão 1 
+foi adicionado com sucesso. Caso não tenha sido adicionado, explique o motivo?
+
+R= Não foi pois o codigo não foi comitado.
+
+6) Na questão 5, caso tenha sido executado um COMMIT ao invés de ROLLBACK, o carro seria adicionado definitivamente?
+Procure entender e explicar as diferenças de conclusão das transações (ROLLBACK e COMMIT).
+
+R= Sim, 
+commit  --finalizar os comandos e adicionar as alterações nas tabelas
+ROLLBACK  --finalizar os comandos e não adicionar as alterações nas tabelas
+
+7) Entendendo o conceito de deadlock, crie uma demonstração de ocorrência de deadlock usando qualquer tabela disponível.
+Evidencie a ocorrência deste deadlock com a mensagem de erro gerada pelo SQL Server como resultado do seu laboratório.
+NOTA: Necessário envolver 2 tabelas para criar este exemplo.
+
+R= EXERCÍCIO 07
+Resposta: 
+
+Consulta:
+
+--SESSÃO 5
+
+--PASSO 1--
+BEGIN TRANSACTION
+
+UPDATE CARRO SET MODELO = 'CELTA'
+WHERE PLACA = 'GQY6753'
+
+--PASSO 3 --
+UPDATE SINISTRO SET LOCAL_SINISTRO = 'CORSA'
+WHERE PLACA = 'GQY6753'
+
+
+ROLLBACK
+SELECT @@TRANCOUNT
+SELECT * FROM CARRO (NOLOCK)
+
+
+--SESSÃO 6
+
+--PASSO 2 --
+BEGIN TRANSACTION
+
+UPDATE SINISTRO SET LOCAL_SINISTRO = 'CORSA'
+WHERE PLACA = 'GQY6753'
+
+--PASSO 4 
+UPDATE CARRO SET MODELO = 'CELTA'
+WHERE PLACA = 'GQY6753'
+
+8) 
+
+
