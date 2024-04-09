@@ -1,0 +1,31 @@
+____________________________________________________________________________________
+
+Revisão de conteudos para a prova... segura essa pedrada papai.
+____________________________________________________________________________________
+
+#1: DESNORMALIZE sempre que tiver oportunidade!
+#2: EVITE múltiplos JOINS!
+#3: Crie e use INDICES!
+#4: Escolha o TIPO DE DADO adequado!
+#5: DROP INDEX antes de OPERAÇÕES MASSIVAS!
+#6: Mantenha as suas TRANSAÇÕES PEQUENAS!
+#7: NUNCA use SELECT *!
+#8: Sempre analise PLANO DE EXECUÇÃO + ESTATISTICAS das consulta (IO e TIME)
+    # Qual o mais rápido...
+    Subconsultas ou JOIN?
+    EXISTS ou IN?
+    NOT EXISTS ou NOT IN?
+    JOIN ou IN ?
+#9: REBUILD de índices e ESTATÍSTICAS de tabelas
+#10: PDCA – Processo de melhoria continua
+_____________________________________________________________________________________
+
+Conteúdos a serem revisados para a prova:
+    Junções e subconsultas e CTE
+    Funções de Janela
+    Armazenamento de dados, indexação e planos de acesso
+    Processamento de transações, controle de concorrência
+    Otimização de consultas e Revisão para a prova
+_____________________________________________________________________________________
+
+
