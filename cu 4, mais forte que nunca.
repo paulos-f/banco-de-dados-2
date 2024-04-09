@@ -29,3 +29,51 @@ Conteúdos a serem revisados para a prova:
 _____________________________________________________________________________________
 
 
+JOIN => Consulta em 2 ou + tabelas
+    inner    = todos dados em comum nas tabelas
+    left     = todos dados da tabela da esquerda + os que são comuns nas duas
+    right    = todos dados da tabela da direita + os que são comuns nas duas
+    full     = todos os dados das tabelas
+    cross    = todos os dados diferentes entre as tabelas
+
+SUBCONSULTA => Faz uma consulta dentro de outra consulta
+    Alinhada          = not in, in, >, <, =   -- consulta interna não tem relação com a externa.
+    Correlacionada    = not exists, exist     -- consulta interna tem relação com a externa.
+
+CTE => Tabela virtual(tabela de consulta)
+
+    with cte as (   
+        select col, count(col) as c
+        from tab
+    )
+          I----I
+          | OU |
+          I----I
+
+
+    with cte as (   
+        select col, count(col) as c
+        from tab
+    ), cte2 as(
+        ~~~~~~~~~~~~~~~~~~
+    )
+
+______________________________________________________________________________________________________
+
+Função:     
+
+Over(partition by ____ order by ________)
+
+Rows Between ( é usado em first value last value)
+
+#eu amo o joao ass: Paulo de souza Fontanela
+
+
+
+
+
+
+
+
+
+
