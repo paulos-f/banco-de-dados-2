@@ -31,8 +31,8 @@ ________________________________________________________________________________
 
 JOIN => Consulta em 2 ou + tabelas
     inner    = todos dados em comum nas tabelas
-    left     = todos dados da tabela da esquerda + os que são comuns nas duas
-    right    = todos dados da tabela da direita + os que são comuns nas duas
+    left     = todos dados que estão somente na tabela da esquerda
+    right    = todos dados que estão somente na tabela da direita
     full     = todos os dados das tabelas
     cross    = todos os dados diferentes entre as tabelas
 
