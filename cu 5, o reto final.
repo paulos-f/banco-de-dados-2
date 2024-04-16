@@ -1,0 +1,157 @@
+1)
+A organização da Federação Nacional de Natação pediu para sua empresa gerar os dados da última competição, ocorrida
+em 17/09/2023. A organização precisa da lista oficial para o quadro de medalhas do evento.
+Para este trabalho, a sua empresa pediu a você construir uma consulta SQL que traga uma lista com os 3 melhores tempos de
+cada modalidade.
+Considere trazer na sua consulta apenas os dados: modalidade, nome do atleta, tempo obtido pelo atleta e sua colocação dentro
+da modalidade.
+
+  
+SELECT modalidade, nome_atleta, tempo, 
+    RANK() OVER(PARTITION BY modalidade ORDER BY tempo) AS colocacao
+FROM resultado_natação
+WHERE data_competicao = '2023-09-17'
+AND colocacao <= 3;
+
+2)
+O que são transações no SQL Server e qual a importância do controle de concorrência no processamento de transações?
+
+Transações no SQL Server são sequências de operações tratadas como uma única unidade de trabalho.
+O controle de concorrência é importante para garantir que várias transações possam ocorrer simultaneamente
+sem comprometer a consistência dos dados, isolando cada transação e mantendo sua atomicidade e consistência.
+
+
+3)
+- Marque VERDADEIRO ou FALSO para as afirmações abaixo e depois escolha a alternativa que corresponde a sequência
+correta:
+( ) O shared lock, em uma transação, permite que várias outras transações leiam os mesmos dados ao mesmo tempo, mas
+impede que outras transações atualizem ou excluam esses dados.
+( ) O exclusive lock, em uma transação, impede que outras transações acessem ou alterarem os dados dessa transação.
+( ) Quando um objeto dentro de uma transação recebe um exclusive lock, é possível liberar o lock deste objeto sem que a
+transação tenha sido finalizada.
+(  ) Quando um objeto dentro de uma transação recebe um shared lock, é possível liberar o lock deste objeto sem que a
+transação tenha sido finalizada.
+(  ) Os shared lock e exclusive lock só são liberado quando uma transação (implícita ou explícita) é finalizada.
+
+
+4) 
+-Como o uso de índices pode ajudar a minimizar problemas de bloqueio e melhorar a performance no SQL Server?
+Explique com suas palavras.
+
+otimização da execução, menor tempo de espera.
+Índices no SQL Server ajudam a minimizar problemas de bloqueio e melhorar a performance ao permitir que consultas sejam executadas de forma mais eficiente.
+Eles ajudam o otimizador de consultas a encontrar rapidamente os registros desejados, reduzindo a necessidade de percorrer grandes volumes de dados.
+Isso ajuda a reduzir o tempo de espera por bloqueios, já que as transações podem acessar e modificar os dados de forma mais rápida e eficiente.
+Em resumo, índices podem ajudar a minimizar bloqueios ao melhorar a eficiência das consultas e reduzir o tempo necessário para acessar os dados desejados.
+
+5)
+-Marque VERDADEIRO ou FALSO para as afirmações abaixo e depois escreva a sua resposta na sequência correta
+referente à junções de tabelas em bancos de dados:
+( v ) O INNER JOIN retorna todas as linhas de ambas as tabelas que têm valores correspondentes nas colunas de junção
+especificadas.
+( v ) O LEFT JOIN entre duas tabelas retorna todas as linhas da tabela à esquerda e as linhas correspondentes da tabela à
+direita. Se não houver correspondência, NULL é retornado para as colunas da tabela à direita.
+( v ) O RIGHT JOIN é similar a um LEFT JOIN, mas ele inverte a ordem das tabelas, retornando todas as linhas da tabela à
+direita e as linhas correspondentes da tabela à esquerda.
+( v ) O FULL JOIN entre duas tabelas retorna todas as linhas de ambas as tabelas, incluindo as que não têm correspondência.
+As colunas da tabela sem correspondência são preenchidas com NULL.
+( v ) O CROSS JOIN (também conhecido como produto cartesiano) combina cada linha da primeira tabela com todas as linhas
+da segunda tabela, criando um conjunto de resultados que contém todas as combinações possíveis entre os registros as duas
+tabelas, sem levar em consideração qualquer critério de correspondência específico.  
+
+6)
+-Marque VERDADEIRO ou FALSO para as afirmações abaixo e depois escreva sua resposta na sequência correta
+referente a índices em bancos de dados:
+( f ) É possível ter mais um índice clustered por tabela, desde que a chave do índice seja diferente.
+( ) Não é possível criar dois índices nonclustered usando a mesma chave (mesmo coluna para indexação), mesmo que
+tenham nomes de índices diferentes.
+( ) Um índice clustered pode ter mais de uma coluna como chave.
+( ) A sintaxe - create index idx_data_competicao on resultado_natacao (data_competicao) - cria um índice chamado
+data_competicao na tabela resultado_natacao, usando a coluna idx_data_competicao como chave deste índice.
+( ) No nível folha de um índice clustered, encontramos todos as colunas da tabela, independente da(s) coluna(s) escolhida(s)
+como chave.
+( ) No nível folha de um índice nonclustered, encontramos todos as colunas da tabela, independente da(s) coluna(s)
+escolhida(s) como chave.
+
+
+7)
+Crie um índice para a consulta abaixo:
+
+select data_competicao, modalidade, nome_atleta, tempo
+from resultado_natacao
+where data_competicao = '2023-09-17 ';
+
+Para a sua resposta, considere otimizar a consulta através da criação de um índice que leia a menor quantidade de páginas
+possível, o menor tempo de execução e o operador do plano de execução mais eficiente (seek x scan x lookup).
+A resposta deve ser apenas o código do comando de criação do índice, considerando os itens acima descritos
+
+
+CREATE INDEX idx_data_competicao 
+ON resultado_natacao (data_competicao, modalidade, nome_atleta, tempo);
+
+8)
+Sua empresa foi contratada para realizar auditoria em um sistema agendamento médico. Para tal, você foi designado pelo
+seu chefe para geração das evidências conforme os pedidos do auditor.
+Com base no modelo abaixo, o auditor pediu a você que gere lista com o código do agendamento, nome do paciente, nome
+do profissional, data de início e fim do agendamento somente do ano de 2020, ordenado de forma ascendente pela data de
+início dos agendamentos.
+
+tem uma tbela paciente com o cd_paciente e o nm_paciente
+outra  tbela profissional com cd_profissional e o nm_paciente
+outra agenda cd_paciente, cd_agenda, cd_profissional, dt_inicio, dt_fim
+
+A resposta desta questão deve ser o código completo do comando SQL que atende o pedido do auditor
+
+
+SELECT a.cd_agenda, p.nm_paciente, pr.nm_profissional, a.dt_inicio, a.dt_fim
+FROM agenda a
+JOIN paciente p ON a.cd_paciente = p.cd_paciente
+JOIN profissional pr ON a.cd_profissional = pr.cd_profissional
+WHERE YEAR(a.dt_inicio) = 2020
+ORDER BY a.dt_inicio ASC;
+
+
+9)
+
+Sua empresa foi contratada para realizar auditoria em um sistema agendamento médico. Para tal, você foi designado pelo
+seu chefe para geração das evidências conforme os pedidos do auditor.
+Conforme o modelo abaixo, o auditor solicita que você informe o nome dos profissionais que não tiveram nenhum
+agendamento marcado para o ano de 2021.
+
+outra  tbela profissional com cd_profissional e o nm_paciente
+outra agenda cd_paciente, cd_agenda, cd_profissional, dt_inicio, dt_fim
+  
+A resposta desta questão deve ser o código completo do comando SQL que atende o pedido do auditor
+REQUISITO: A consulta deverá ser construída usando subquery correlacionada com EXISTS.
+
+
+SELECT nome_profissional
+FROM profissional p
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM agenda a
+    WHERE a.cd_profissional = p.cd_profissional
+    AND YEAR(a.dt_inicio) = 2021
+);
+
+
+
+10)
+Sua empresa foi contratada para realizar auditoria em um sistema agendamento médico. Para tal, você foi designado
+pelo seu chefe para geração das evidências conforme os pedidos do auditor.
+De acordo com o modelo abaixo, o auditor precisa que você de uma lista que informe o nome dos profissionais que não
+tiveram nenhum agendamento marcado.
+
+outra  tbela profissional com cd_profissional e o nm_paciente
+outra agenda cd_paciente, cd_agenda, cd_profissional, dt_inicio, dt_fim
+
+A resposta desta questão deve ser o código completo do comando SQL que atende o pedido do auditor
+REQUISITO: Sua consulta deverá ser construída usando JOIN (considere incluir todos os tipos de JOIN como escopo para
+sua resposta).
+
+
+
+SELECT p.nome_profissional
+FROM profissional p
+LEFT JOIN agenda a ON p.cd_profissional = a.cd_profissional
+WHERE a.cd_agenda IS NULL;
