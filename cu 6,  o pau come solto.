@@ -1,0 +1,28 @@
+1)
+
+CREATE or alter PROCEDURE pr_teste (@n1 int , @n2 int) as begin     declare @total int    select @total = @n1 + @n2    SELECT @totalENDgoEXECUTE pr_teste 2,5
+
+2)
+
+create or alter PROCEDURE pr_media (@m1 int, @m2 int, @m3 int,@m4  int) as BEGIN        DECLARE @media numeric (8,2)        SELECT @media = (@m1 + @m2 + @m3 + @m4) / 4         SELECT @media as resultadoENDgoEXECUTE pr_media 7,1,9,10
+
+3)
+
+create or alter procedure pr_soma(@v1 int, @v2 int, @v3 int, @v4 int) as begin    DECLARE @resultado int     SELECT @resultado = @v1 + @v2 + @v3 + @v4    select @resultado as resultado    if @v1 is null or @v2 is null or @v3 is null or @v4 is null    PRINT 'algum numero é nulo'endgoEXECUTE pr_soma null,4,12,249
+
+4)
+
+create or alter procedure pr_placa (@placa  varchar(7) = 'ALD3834') as BEGIN    if EXISTS    (select 1 from sinistro     where placa = @placa)    select placa , data_sinistro, hora_sinistro, condutor from sinistro     where placa = @placa    ELSE    PRINT 'nao existem sinistros atrelados '    ENDgoEXECUTE pr_placa
+
+5)
+
+create or alter PROCEDURE pr_sini (@cod_apolice int = 202200001) as begin     if exists (select 1 from apolice where cod_apolice = @cod_apolice)    BEGIN        if exists (select 1 from apolice where cod_apolice = @cod_apolice and data_fim_vigencia < getdate())        print 'venceu meu chapa'        else         print 'ta ativo pra caralho'    end    else    print 'n tem rapá'ENDgoexecute pr_sini
+
+
+
+
+
+
+
+
+
