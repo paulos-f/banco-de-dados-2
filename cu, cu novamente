@@ -1,0 +1,102 @@
+/*
+
+1. Escreva uma função que aceite uma data como entrada e retorne o dia da semana correspondente em formato de texto.
+Por exemplo, se a entrada for "2023-05-09", a função deve retornar "terça-feira". Pesquise sobre funções de data e hora
+T-SQL para responder essa questão.
+
+
+
+CREATE FUNCTION dbo.fn_DiaDaSemana (@data DATE)
+RETURNS VARCHAR(50)
+AS
+BEGIN
+    RETURN (SELECT DATENAME(dw, @data));
+END
+GO
+
+SELECT dbo.fn_DiaDaSemana('2024-05-07') AS DiaDaSemana
+GO
+*/
+
+/*
+2. Crie uma função que aceite um número inteiro como entrada e retorne PAR se o número for par ou ÍMPAR se o número
+for ímpar.
+
+
+create function dbo.ParImpar3 (@numero int)
+returns varchar(5)
+as
+begin
+	declare @resultado varchar(5);
+	
+	return case when @numero % 2 != 0 then 'Impar' else 'Par' end;
+end
+go
+
+select dbo.ParImpar3(3) as resultado
+go
+*/
+
+
+
+/*
+3. Escreva uma função que calcule a idade de uma pessoa com base em sua data de nascimento. A função deve aceitar a
+data de nascimento como entrada e retornar um valor inteiro com a idade em anos.
+
+
+create function fn_idade (@data datetime) returns int as
+begin
+	declare @idade int
+	select @idade = floor(datediff(day, @data, getdate()) / 365.25)
+	return @idade
+end
+go
+
+select dbo.fn_idade('1990-01-01')
+*/
+
+/*
+4. Crie uma função que aceite uma STRING como entrada e retorne a quantidade de caracteres dessa STRING. Por exemplo,
+se a entrada for "Centro Universitário UNISATC", a função deve retornar 28. Pesquise sobre funções Strings T-SQL para
+responder essa questão.
+
+
+create function fNome(@frase varchar(100))returns int
+as
+begin
+	declare @teste int
+	select @teste = len(@frase)
+	return @teste
+end
+go
+
+select dbo.fNome ('o paulo é legal3333333333')
+*/
+
+/*
+5. Crie uma função que aceite duas datas como entrada e retorne o número de dias entre essas datas. Por exemplo, se as
+datas de entrada forem "2023-05-09" e "2023-05-15", a função deve retornar 6. Pesquise sobre funções de data e hora
+T-SQL para responder essa questão
+
+
+create function fn_difData (@data datetime, @data2 datetime) returns int
+as
+begin
+	declare @dif int
+	select @dif = datediff(day, @data, @data2)
+	return @dif
+
+end
+go
+
+select dbo.fn_difData ('2024-05-06', '2024-05-07')
+*/
+
+/*
+6. Crie uma função que, passando uma placa de carro como parâmetro de entrada, a função retorne a quantidade de
+sinistros dessa placa. Tratar possíveis resultados NULL.
+Por fim, execute um SELECT na tabela carro (mostrando todos os campos), colocando uma chamada da função no SELECT
+LIST de sua consulta para que ela mostre todos os dados da tabela carro e ao final de todas as colunas, informe a
+quantidade de sinistros para cada placa
+*/
+
