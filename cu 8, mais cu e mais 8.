@@ -1,1 +1,28 @@
-teste
+criando as tabelas:
+
+CREATE TABLE conta (
+    cd_conta INT PRIMARY KEY,
+    nm_correntista VARCHAR(255),
+    status INT CHECK (status IN (0, 1))
+);
+
+CREATE TABLE lancamento (
+    id_lancamento INT,
+    dt_operacao DATE,
+    cd_conta INT,
+    descricao_operacao VARCHAR(100),
+    tipo_operacao CHAR(1) CHECK (tipo_operacao IN ('D', 'C')),
+    valor_operacao numeric(10, 2),
+    constraint pk_saldo primary key (dt_operacao, cd_conta)
+);
+
+CREATE TABLE saldo (
+    id_saldo INT PRIMARY KEY,
+    dt_saldo DATE,
+    cd_conta INT,
+    valor_saldo numeric(10, 2),
+    FOREIGN KEY (cd_conta) REFERENCES conta(cd_conta)
+);
+
+
+resolvendo os problemas:
