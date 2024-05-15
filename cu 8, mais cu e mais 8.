@@ -25,4 +25,125 @@ CREATE TABLE saldo (
 );
 
 
-resolvendo os problemas:
+criando a proc:
+
+create proc at_saldo(
+@id_lancamento INT,
+@dt_operacao DATE,
+@cd_conta INT,
+@descricao_operacao VARCHAR(100),
+@tipo_operacao CHAR(1),
+@valor_operacao numeric(10, 2)
+) as
+begin
+	INSERT INTO lancamento values(
+	@id_lancamento,
+@dt_operacao,
+@cd_conta,
+@descricao_operacao,
+@tipo_operacao,
+@valor_operacao
+	)
+end
+go
+
+povoando as tabelas:
+
+INSERT INTO lancamento (id_lancamento, dt_operacao, cd_conta, descricao_operacao, tipo_operacao, valor_operacao)
+VALUES
+    (1, '2024-05-10', 123456, 'Compra de mantimentos', 'D', 150.00),
+    (2, '2024-05-11', 654321, 'Recebimento de salário', 'C', 2500.00),
+    (3, '2024-05-12', 123456, 'Pagamento de conta de luz', 'D', 80.50),
+    (4, '2024-05-12', 987654, 'Transferência recebida', 'C', 500.00),
+    (5, '2024-05-13', 654321, 'Pagamento de aluguel', 'D', 1000.00),
+    (6, '2024-05-14', 987654, 'Compra de roupas', 'D', 200.00);
+
+
+
+
+INSERT INTO conta (cd_conta, nm_correntista, status) VALUES
+(1, 'João Silva', 1),
+(2, 'Maria Santos', 1),
+(3, 'Carlos Oliveira', 0),
+(4, 'Ana Costa', 1),
+(5, 'Pedro Sousa', 0);
+
+
+algumas exec:
+
+
+EXEC at_saldo 
+    @id_lancamento = 1,
+    @dt_operacao = '2024-05-14',
+    @cd_conta = 1,
+    @descricao_operacao = 'Depósito',
+    @tipo_operacao = 'D',
+    @valor_operacao = 1000.00;
+
+
+EXEC at_saldo 
+    @id_lancamento = 2,
+    @dt_operacao = '2024-05-15',
+    @cd_conta = 2,
+    @descricao_operacao = 'Saque',
+    @tipo_operacao = 'C',
+    @valor_operacao = 500.00;
+
+
+
+
+criando a trigger:
+
+
+create trigger ti_lancamento on lancamento after insert as
+begin
+	if ROWCOUNT_BIG() = 0
+		return
+
+	declare 
+		@data date,
+		@conta int,
+		@descricao varchar(100),
+		@tipo varchar(1), 
+		@valor numeric(14,2)
+	
+	select  @data = dt_operacao,
+			@conta = cd_conta,
+			@descricao = descricao,
+			@tipo = tp_operacao,
+			@valor = vl_valor
+	from inserted
+
+	select @count = count(*)
+	from saldo
+	where cd_conta = @conta and dt_saldo = @data
+
+	if @count = 0
+	begin
+		if @tipo ='C'
+		begin
+			insert into saldo values (@data, @conta, @valor)
+		end
+		else
+		begin
+			insert into saldo values (@data, @conta, @valor * -1)
+		end
+			
+	end
+	else
+	begin
+		if @tipo = 'C'
+		begin
+			update saldo set vl_saldo = vl_saldo + @valor
+			where cd_conta = @conta and dt_saldo = @data
+		end
+		else
+		begin
+			update saldo set vl_saldo = vl_saldo - @valor
+			where cd_conta = @conta and dt_saldo = @data
+		end
+	end
+
+end
+go
+
