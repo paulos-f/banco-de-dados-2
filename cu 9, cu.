@@ -1,0 +1,217 @@
+1. (múltipla escolha) Uma store procedure suporta:
+a) Nenhum parâmetro.
+b) Somente parâmetros de entrada.
+c) Parâmetros de entrada e saída.
+d) Somente parâmetros de saída.
+
+Todas as opções estão corretas.
+
+Ele pode receber nenhum parametros, somente de entrada, somente de saida ou os dois simultaneamente(entrada saída)
+
+---------------------------------------------------------------------------------------------
+
+2. (múltipla escolha) Uma trigger suporta:
+a) Nenhum parâmetro.
+b) Somente parâmetros de entrada.
+c) Parâmetros de entrada e saída.
+d) Somente parâmetros de saída.
+
+a)Um trigger não pode receber nenhum parametro
+
+---------------------------------------------------------------------------------------------
+
+
+3. (múltipla escolha) Uma função suporta:
+a) Nenhum parâmetro.
+b) Somente parâmetros de entrada.
+c) Parâmetros de entrada e saída.
+d) Somente parâmetros de saída.
+
+
+a e b) Uma função pode executa-la sem receber nenhum parametro ou somente recebendo parametro de entrada
+
+----------------------------------------------------------------------------------------------
+4. Considere VERDADEIRO ou FALSO para as afirmativas abaixo:
+( F ) Trigger são criadas por CREATE TRIGGER e executadas por EXECUTE.
+( V ) Funções são criadas por CREATE FUNCTION e executadas por SELECT.
+( V ) Stored procedures são criadas por CREATE PROCEDURE e executados por EXECUTE.
+( V ) Triggers são executadas automaticamente conforme o disparo de um evento no banco de dados.
+( F ) Funções são executadas automaticamente por um evento no banco de dados.
+( F ) Stored procedures são executadas automaticamente pelo disparo de um evento no banco de dados.
+( F ) Funções são criadas por CREATE FUNCTION e executadas por EXECUTE.
+----------------------------------------------------------------------------------------------
+
+5. (objetiva) A diferença básica entre uma trigger, uma stored procedure e uma function é que,
+respectivamente:
+a) Todas são executadas de acordo com um evento, mas não são ficam dentro de um banco de dados.
+b) É executada de acordo com um evento; é chamada para ser executada; é chamada para ser executada e
+todas elas ficam dentro de um banco de dados.
+c) Todas são executadas após serem chamadas, porém a primeira não fica dentro de um banco de dados.
+d) Todas são executadas após serem chamadas, porém a segunda não fica dentro de um banco de dados.
+e) Todas são executadas após serem chamadas, porém a terceira não fica dentro de um banco de dados.
+f) É chamada para ser executada; É chamada para ser executada; é executada de acordo com um evento e
+todas elas não ficam dentro de um banco de dados.
+
+
+RESPOSTA: B	
+----------------------------------------------------------------------------------------------
+
+6. (múltipla escolha) Se considerarmos a assinatura da stored procedure a seguir, podemos afirmar que:
+
+procedure x (@y int, @z int output)
+
+a) A procedure retorna um valor inteiro após sua execução.
+b) A procedure não recebe parâmetros de entrada.
+c) A procedure possui dois parâmetros de entrada.
+d) O nome da procedure é x e ela não retorna nenhum valor.
+e) O nome da procedure é x; y e z são parâmetros.
+f) y e z são os valores retornados pela procedure após sua execução.
+
+a e e) a procedure tem um parametro de entrada(y) e um de saída(z). O nome da procedure é x.
+
+----------------------------------------------------------------------------------------------
+
+7. (múltipla escolha) Se considerarmos a assinatura da função escalar a seguir, podemos afirmar que:
+
+function x (@y int) returns int
+
+a) A função retorna um valor inteiro após sua execução, através de uma variável.
+b) A função não recebe parâmetros de entrada.
+c) A função possui um parâmetro.
+d) O nome da função é x e ela não retorna nenhum valor.
+e) O nome da função é x; y é um parâmetro; e retorna um valor inteiro.
+
+
+a, c e e) O nome da função é x; y é um parâmetro; e retorna um valor inteiro.
+----------------------------------------------------------------------------------------------
+
+8. Sobre os temas de procedimentos armazenados (stored procedures) e gatilhos (triggers) e funções
+(functions), marque somente as afirmações FALSAS.
+( x ) Uma trigger é equivalente a uma função, inclusive pelo fato de retornar um valor.
+(  ) A execução de uma stored procedure é feita por meio de chamada ao seu nome, podendo ser, inclusive,
+dentro de outra stored procedure.
+(  ) Uma trigger é uma stored procedure que é ativada por evento e executa uma ou mais ações.  -  slide procedimentos -
+( x ) Transações (commit e rollback) não podem ser executadas em stored procedures e funções, somente em triggers.
+( ) O uso de stored procedure diminui o tráfego na rede em uma arquitetura client/server, pois os comandos
+SQL ficam armazenados em um banco de dados.
+
+----------------------------------------------------------------------------------------------
+
+9. Fulano monitora um servidor SQL Server e precisa criar algo que guarde todas as alterações ocorridas na
+estrutura das tabelas, especialmente os comandos de DDL (CREATE, ALTER e DROP).
+A estratégia mais apropriada para detectar comandos dessa natureza, considera a criação e uso de:
+a) Funções
+b) Identity
+c) Bloqueios
+d) Stored Procedures
+e) Triggers  -  correta
+
+R: O Trigger é a melhor opção pois você consegue deixar pre-difinida uma ação quando comandos DDL acontecerem no seu Banco de Dados
+
+----------------------------------------------------------------------------------------------
+
+10. Você recebeu um ticket de suporte para avaliar o código abaixo e...
+
+DECLARE @placa int
+SET @placa = 'CCR8096'
+UPDATE carro
+ SET cor = 'BRANCO'
+WHERE chassi IS_NULL
+ AND ano BETWEEN 2020 and 2022
+ AND placa = @placa
+PRINT 'O número de linhas atualizadas é : ' + CONVERT(varchar(100), @@ROWCOUNT)
+
+...concluiu corretamente que existem os seguintes erros na instrução (considere todos os erros encontrados).
+
+a) @@ROWCOUNT, pois deveria ser escrito com somente um caracter @
+b) IS_NULL , deveria ser escrito dessa forma IS NULL
+c) CONVERT, por ser um comando completamente desnecessário nessa instrução
+d) PRINT, pois para mostrar a informação em tela precisaria ser utilizada a instrução ECHO
+e) BETWEEN 2020 AND 2022, pois os valores 2020 AND 2022 deveriam ser inseridos entre parênteses
+f) DECLARE @placa int, pois o tipo de dado correto deveria ser alfanumérico tipo varchar.
+g) SET @placa, pois o correto seria setar o valor da variável através do comando SELECT.
+
+
+b, f
+
+----------------------------------------------------------------------------------------------
+
+11. Considere o código abaixo:
+
+create proc x (@m int, @r datetime output) as
+begin
+select @r = dateadd(MM, @m, getdate())
+end
+go
+
+Responda qual é a finalidade desta stored procedure (considerar somente uma correta – a mais completa).
+a) Listar a data atual.
+b) Listar o mês atual.
+c) Informar o mês atual através da variável @r
+d) Informar o mês atual através da variável @m
+e) Informar uma data (com base na data atual), acrescida ou diminuída de @m mês(es), através de @r.
+f) Informar uma data, acrescida de @m mês(es), através de @r.
+g) Informar o mês (com base na data atual), acrescida de @m minutos, através de @r.
+
+
+
+R: EXECUTE xx 4, ''
+
+----------------------------------------------------------------------------------------------
+
+12. Encontre o(s) erro(s) no código abaixo, efetue a(s) correção(ões) e poste o código corrigido:
+
+create function fn_count_apolices (@cod_cliente int)
+returns int
+as
+begin
+declare @resultado int, @result varchar(10)
+select @resultado = count(cod_apolice) from apolice where cod_cliente = @cod_cliente
+return @result
+end
+go
+
+Resposta:
+
+create function fn_count_apolices (@cod_cliente int)
+returns int
+as
+begin
+declare @resultado int
+select @resultado = count(cod_apolice) from apolice where cod_cliente = @cod_cliente
+return @resultado
+end
+go
+
+
+----------------------------------------------------------------------------------------------
+
+13. Explique qual a finalidade da trigger abaixo:
+
+create trigger tu_usuario on usuario for update as
+begin
+ if rowcount_big() = 0
+ return
+declare @p varchar(30),
+ @t int
+select @t = cd_usuario, @p = senha_atual from inserted
+ if update(senha_atual)
+ begin
+ update usuario
+ set senha_anterior = @p
+ where cd_usuario = @t
+ end
+end
+go
+Resposta:
+
+O trigger verifica se houve alteração de senha. Se houve, ele armazena a senha antiga na coluna senha_anterior da tabela usuario.
+
+--------------------------------------------------------
+
+
+14. Crie uma stored procedure que informe quantos carros possui cada cliente (lista). Escreva também os
+comandos usados na execução da stored procedure.
+
+
+
