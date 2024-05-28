@@ -1,28 +1,368 @@
-1)
+1)Crie uma stored procedure que some dois valores inteiros passados como parâmetros de entrada da stored
+procedure. O resultado deve ser um valor inteiro
 
 CREATE or alter PROCEDURE pr_teste (@n1 int , @n2 int) as begin     declare @total int    select @total = @n1 + @n2    SELECT @totalENDgoEXECUTE pr_teste 2,5
 
-2)
+2)Crie uma stored procedure que calcule a média de 4 valores inteiros passados como parâmetro de entrada.
+O resultado deve ser um valor numérico (tipo number) com somente 2 casas após a vírgula.
 
 create or alter PROCEDURE pr_media (@m1 int, @m2 int, @m3 int,@m4  int) as BEGIN        DECLARE @media numeric (8,2)        SELECT @media = (@m1 + @m2 + @m3 + @m4) / 4         SELECT @media as resultadoENDgoEXECUTE pr_media 7,1,9,10
 
-3)
+3)Crie uma stored procedure que some quatros valores inteiros passados como parâmetros de entrada da
+stored procedure. O resultado deve ser um valor inteiro.
+Implementar no seu código uma validação no preenchimento dos parâmetros no momento da execução da
+stored procedure e no caso da ausência de algum deles, gerar uma mensagem via PRINT informando o erro
 
 create or alter procedure pr_soma(@v1 int, @v2 int, @v3 int, @v4 int) as begin    DECLARE @resultado int     SELECT @resultado = @v1 + @v2 + @v3 + @v4    select @resultado as resultado    if @v1 is null or @v2 is null or @v3 is null or @v4 is null    PRINT 'algum numero é nulo'endgoEXECUTE pr_soma null,4,12,249
 
-4)
+4)Crie uma stored procedure que receba a placa de um carro como parâmetro de entrada e valide se tem
+algum sinistro vinculado a essa placa. Caso tenha um (ou mais de um) sinistro, mostre em uma lista: a placa
+do carro, a data do sinistro, a hora do sinistro e o nome do condutor.
+No caso de não ter nenhum sinistro para a placa informada, mostre uma mensagem via PRINT que não
+existem sinistros atrelados a placa informada.
 
 create or alter procedure pr_placa (@placa  varchar(7) = 'ALD3834') as BEGIN    if EXISTS    (select 1 from sinistro     where placa = @placa)    select placa , data_sinistro, hora_sinistro, condutor from sinistro     where placa = @placa    ELSE    PRINT 'nao existem sinistros atrelados '    ENDgoEXECUTE pr_placa
 
-5)
+5)Crie uma store procedure que receba um código de apólice como parâmetro de entrada e retorne por
+mensagem de PRINT se ela está ‘ATIVA’ ou ‘VENCIDA’ ou ‘INEXISTENTE’.
 
 create or alter PROCEDURE pr_sini (@cod_apolice int = 202200001) as begin     if exists (select 1 from apolice where cod_apolice = @cod_apolice)    BEGIN        if exists (select 1 from apolice where cod_apolice = @cod_apolice and data_fim_vigencia < getdate())        print 'venceu meu chapa'        else         print 'ta ativo pra caralho'    end    else    print 'n tem rapá'ENDgoexecute pr_sini
 
 
+6-Crie uma stored procedure que calcule o IMC (índice de massa corporal). O resultado deve ser retornado
+através de uma variável de saída e o valor numérico com somente 2 casas após a vírgula (utilize a função
+ROUND() para arredondamento de casas decimais).
+Depois da execução da stored procedure, execute um SELECT na variável de saída para evidenciar o valor recebido 
+através da execução da stored procedure Formula IMC = Massa (kg) / Altura (m) 2Crie uma stored procedure que calcule o IMC 
+(índice de massa corporal). O resultado deve ser retornado através de uma variável de saída e o valor numérico com somente 
+2 casas após a vírgula (utilize a função ROUND() para arredondamento de casas decimais). Depois da execução da stored procedure,
+execute um SELECT na variável de saída para evidenciar o valor recebido através da execução da stored procedure.
+Formula IMC = Massa (kg) / Altura (m) 2
+
+
+CREATE PROCEDURE spCalcularIMC
+    @massa DECIMAL(10, 2),
+    @altura DECIMAL(10, 2),
+    @imc DECIMAL(10, 2) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @altura = 0
+    BEGIN
+        RAISERROR('Altura não pode ser zero.', 16, 1);
+        RETURN;
+    END
+
+    SET @imc = ROUND(@massa / (@altura * @altura), 2);
+END;
+
+
+DECLARE @massa DECIMAL(10, 2) = 70.0;  -- Exemplo de massa em kg
+DECLARE @altura DECIMAL(10, 2) = 1.75; -- Exemplo de altura em metros
+DECLARE @imc DECIMAL(10, 2);
+
+-- Executar a stored procedure
+EXEC spCalcularIMC @massa, @altura, @imc OUTPUT;
+
+-- Verificar o resultado
+SELECT @imc AS IMC;
+
+
+
+DECLARE @massa DECIMAL(10, 2) = 85.0;
+DECLARE @altura DECIMAL(10, 2) = 1.80;
+DECLARE @imc DECIMAL(10, 2);
+
+EXEC spCalcularIMC @massa, @altura, @imc OUTPUT;
+
+SELECT @imc AS IMC;
+
+
+
+7-
+Crie uma stored procedure que adicione (INSERT) um carro, passando todas as informações necessárias para
+se cadastrar um carro como parâmetros de entrada. Depois de inserir o carro, a stored procedure deve listar
+(SELECT) todos os carros.
+
+
+CREATE PROCEDURE spAdicionarEListarCarro
+    @placa VARCHAR(10),
+    @modelo VARCHAR(100),
+    @ano INT,
+    @cor VARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Inserir o carro na tabela
+        INSERT INTO carro (placa, modelo, ano, cor)
+        VALUES (@placa, @modelo, @ano, @cor);
+
+        -- Selecionar todos os carros
+        SELECT * FROM carro;
+    END TRY
+    BEGIN CATCH
+        -- Capturar e lançar o erro
+        THROW;
+    END CATCH
+END;
+
+
+-- Executar a stored procedure com os parâmetros do carro
+EXEC spAdicionarEListarCarro 
+    @placa = 'JKL3456', 
+    @modelo = 'Chevrolet Onix', 
+    @ano = 2021, 
+    @cor = 'Vermelho';
+
+
+8-
+Crie uma stored procedure que adicione um sinistro (inserir uma linha), passando todas as informações
+necessárias para se cadastrar um sinistro, como parâmetros de entrada. Validar antes de cadastrar o
+sinistro, se o carro existe. Caso exista, prosseguir com o INSERT. Caso não exista, informar via PRINT que o
+carro não existe. 
+
+CREATE PROCEDURE spAdicionarSinistro
+    @placa VARCHAR(10),
+    @data_sinistro DATE,
+    @descricao VARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Variável para armazenar a contagem de carros com a placa fornecida
+    DECLARE @carroExiste INT;
+
+    -- Verificar se o carro existe na tabela carro
+    SELECT @carroExiste = COUNT(*)
+    FROM carro
+    WHERE placa = @placa;
+
+    -- Se o carro existe, inserir o sinistro
+    IF @carroExiste > 0
+    BEGIN
+        INSERT INTO sinistro (placa, data_sinistro, descricao)
+        VALUES (@placa, @data_sinistro, @descricao);
+
+        PRINT 'Sinistro adicionado com sucesso.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'Carro não existe.';
+    END
+END;
+
+
+INSERT INTO carro (placa, modelo, ano, cor) VALUES ('ABC1234', 'Honda Civic', 2020, 'Preto');
+INSERT INTO carro (placa, modelo, ano, cor) VALUES ('DEF5678', 'Toyota Corolla', 2019, 'Branco');
+
+
+-- Tentar adicionar um sinistro para um carro existente
+EXEC spAdicionarSinistro 
+    @placa = 'ABC1234', 
+    @data_sinistro = '2024-05-28', 
+    @descricao = 'Colisão traseira';
+
+-- Tentar adicionar um sinistro para um carro não existente
+EXEC spAdicionarSinistro 
+    @placa = 'XYZ9999', 
+    @data_sinistro = '2024-05-28', 
+    @descricao = 'Dano ao para-choque';
+
+
+9-
+Crie uma stored procedure que gere uma lista com os TOP “N” cursos com mais alunos. O “N” deverá ser
+passado como parâmetro da stored procedure, que deverá mostrar o resultado filtrado pelo ranking
+informado no N.
+Exemplo: Se N = 1, mostrar somente o curso (ou mais de um curso em caso de empate) mais alto do
+ranking. Se N = 3, mostrar os 3 cursos com mais alunos cadastrados.
+A lista da stored procedures deverá ter as seguintes colunas:
+Nome do curso, ranking, qt_aluno
+A coluna qt_sinistro deverá possuir a quantidade de alunos relativos ao curso
+
+
+CREATE PROCEDURE spTopNCursosComMaisAlunos
+    @N INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    ;WITH CursoRanking AS (
+        SELECT 
+            c.nome_curso,
+            ROW_NUMBER() OVER (ORDER BY COUNT(a.id_aluno) DESC) AS ranking,
+            COUNT(a.id_aluno) AS qt_aluno
+        FROM 
+            curso c
+        LEFT JOIN 
+            aluno a ON c.id_curso = a.id_curso
+        GROUP BY 
+            c.nome_curso
+    )
+    SELECT 
+        nome_curso,
+        ranking,
+        qt_aluno
+    FROM 
+        CursoRanking
+    WHERE 
+        ranking <= @N
+    ORDER BY 
+        ranking;
+END;
+
+
+-- Exibir o TOP 3 cursos com mais alunos
+EXEC spTopNCursosComMaisAlunos @N = 3;
+
+-- Exibir o curso com mais alunos
+EXEC spTopNCursosComMaisAlunos @N = 1;
+
+
+INSERT INTO curso (id_curso, nome_curso) VALUES (1, 'Matemática');
+INSERT INTO curso (id_curso, nome_curso) VALUES (2, 'Física');
+INSERT INTO curso (id_curso, nome_curso) VALUES (3, 'Química');
+INSERT INTO curso (id_curso, nome_curso) VALUES (4, 'Biologia');
+
+INSERT INTO aluno (id_aluno, nome_aluno, id_curso) VALUES (1, 'João', 1);
+INSERT INTO aluno (id_aluno, nome_aluno, id_curso) VALUES (2, 'Maria', 1);
+INSERT INTO aluno (id_aluno, nome_aluno, id_curso) VALUES (3, 'Pedro', 2);
+INSERT INTO aluno (id_aluno, nome_aluno, id_curso) VALUES (4, 'Ana', 2);
+INSERT INTO aluno (id_aluno, nome_aluno, id_curso) VALUES (5, 'Lucas', 2);
+INSERT INTO aluno (id_aluno, nome_aluno, id_curso) VALUES (6, 'Mariana', 3);
+INSERT INTO aluno (id_aluno, nome_aluno, id_curso) VALUES (7, 'Fernando', 3);
+INSERT INTO aluno (id_aluno, nome_aluno, id_curso) VALUES (8, 'Clara', 4);
+
+
+-- Exibir os TOP 2 cursos com mais alunos
+EXEC spTopNCursosComMaisAlunos @N = 2;
+
+-- Exibir o curso com mais alunos
+EXEC spTopNCursosComMaisAlunos @N = 1;
+
+
+
+10-
+Crie uma stored procedure que receba como parâmetro de entrada o código da apólice e a procedure deve
+buscar o nome do cliente que possui essa apólice. O nome do cliente deve ser retornado através de uma
+variável de saída.
+Caso não encontre o nome do cliente, informe a não existência do cliente por mensagem de PRINT.
+
+CREATE PROCEDURE spBuscarNomeClientePorApolice
+    @id_apolice INT,
+    @nome_cliente VARCHAR(100) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Variável para armazenar o código do cliente
+    DECLARE @codigo_cliente INT;
+
+    -- Buscar o código do cliente pela apólice
+    SELECT @codigo_cliente = codigo_cliente
+    FROM apolice
+    WHERE id_apolice = @id_apolice;
+
+    -- Verificar se o cliente foi encontrado
+    IF @codigo_cliente IS NOT NULL
+    BEGIN
+        -- Buscar o nome do cliente
+        SELECT @nome_cliente = nome_cliente
+        FROM cliente
+        WHERE codigo_cliente = @codigo_cliente;
+
+        -- Verificar se o nome do cliente foi encontrado
+        IF @nome_cliente IS NULL
+        BEGIN
+            PRINT 'Cliente não encontrado.';
+        END
+    END
+    ELSE
+    BEGIN
+        PRINT 'Apólice não encontrada.';
+    END
+END;
+
+DECLARE @id_apolice INT = 1; -- Exemplo de código da apólice
+DECLARE @nome_cliente VARCHAR(100);
+
+-- Executar a stored procedure
+EXEC spBuscarNomeClientePorApolice @id_apolice, @nome_cliente OUTPUT;
+
+-- Verificar o resultado
+SELECT @nome_cliente AS NomeCliente;
+
+
+
+INSERT INTO cliente (codigo_cliente, nome_cliente, email_cliente, telefone_cliente) 
+VALUES (1, 'João Silva', 'joao.silva@example.com', '11987654321');
+
+INSERT INTO cliente (codigo_cliente, nome_cliente, email_cliente, telefone_cliente) 
+VALUES (2, 'Maria Oliveira', 'maria.oliveira@example.com', '11987654322');
+
+
+INSERT INTO apolice (codigo_cliente, data_vencimento, valor) 
+VALUES (1, '2023-05-15', 1500.00);
+
+INSERT INTO apolice (codigo_cliente, data_vencimento, valor) 
+VALUES (2, '2024-01-22', 2000.00);
 
 
 
 
+DECLARE @id_apolice INT = 1; -- Exemplo de código da apólice
+DECLARE @nome_cliente VARCHAR(100);
+
+-- Executar a stored procedure
+EXEC spBuscarNomeClientePorApolice @id_apolice, @nome_cliente OUTPUT;
+
+-- Verificar o resultado
+SELECT @nome_cliente AS NomeCliente;
 
 
+11-
+Crie uma stored procedure que receba como parâmetro de entrada o código do sinistro e a procedure deve
+buscar a placa do carro que possui esse sinistro. A placa do carro deve ser retornada através de uma variável
+de saída.
+Caso não encontre o nome do cliente, informe a não existência do cliente por mensagem de PRINT.
+Continuando a execução do código fora da stored procedure, crie um SELECT na tabela carro, mostrando
+todos os dados do carro e passado como parâmetro WHERE a placa do carro que foi retornada pela
+procedure (variável de saída).
+
+
+CREATE PROCEDURE spBuscarPlacaPorSinistro
+    @id_sinistro INT,
+    @placa VARCHAR(10) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Buscar a placa do carro pela sinistro
+    SELECT @placa = placa
+    FROM sinistro
+    WHERE id_sinistro = @id_sinistro;
+
+    -- Verificar se a placa foi encontrada
+    IF @placa IS NULL
+    BEGIN
+        PRINT 'Sinistro não encontrado.';
+    END
+END;
+
+
+
+
+DECLARE @id_sinistro INT = 1; -- Exemplo de código do sinistro
+DECLARE @placa VARCHAR(10);
+
+-- Executar a stored procedure
+EXEC spBuscarPlacaPorSinistro @id_sinistro, @placa OUTPUT;
+
+-- Verificar o resultado e selecionar os dados do carro correspondente
+IF @placa IS NOT NULL
+BEGIN
+    SELECT * FROM carro WHERE placa = @placa;
+END;
 
