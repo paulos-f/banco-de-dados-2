@@ -1,0 +1,206 @@
+criando tabela conta
+
+CREATE TABLE conta (
+    codigo_conta INT PRIMARY KEY,
+    nome_correntista VARCHAR(100) NOT NULL,
+    status BIT NOT NULL -- 1 = ativo, 0 = inativo
+);
+
+________________________________________________________________________________________________________________________________________________
+
+criando tabela lançamento
+
+CREATE TABLE lancamento (
+    data_operacao DATETIME NOT NULL,
+    codigo_conta INT,
+    descricao_operacao VARCHAR(100) NOT NULL,
+    tipo_operacao CHAR(1) CHECK (tipo_operacao IN ('D', 'C')), -- D = debito, C = credito
+    valor_operacao DECIMAL(18, 2) NOT NULL,
+    CONSTRAINT FK_Lancamento_Conta FOREIGN KEY (codigo_conta) REFERENCES conta (codigo_conta)
+);
+
+________________________________________________________________________________________________________________________________________________
+
+criando tabela saldo
+
+CREATE TABLE saldo (
+    data_saldo DATE NOT NULL,
+    codigo_conta INT,
+    valor_saldo DECIMAL(18, 2) NOT NULL,
+    CONSTRAINT PK_Saldo PRIMARY KEY (data_saldo, codigo_conta),
+    CONSTRAINT FK_Saldo_Conta FOREIGN KEY (codigo_conta) REFERENCES conta (codigo_conta)
+);
+
+________________________________________________________________________________________________________________________________________________
+
+criando tabela auditoria - contem a data o tipo e o nome de quem alterou.
+
+CREATE TABLE log_auditoria (
+    data_hora_operacao DATETIME DEFAULT GETDATE(),
+    tipo_operacao CHAR(1) CHECK (tipo_operacao IN ('D', 'I', 'U')), -- D = delete, I = insert, U = update
+    nome_usuario VARCHAR(100),
+    descricao VARCHAR(255)
+);
+
+________________________________________________________________________________________________________________________________________________
+
+criando procedure
+
+CREATE PROCEDURE spAdicionarLancamento
+    @codigo_conta INT,
+    @data_operacao DATETIME,
+    @descricao_operacao VARCHAR(100),
+    @tipo_operacao CHAR(1),
+    @valor_operacao DECIMAL(18, 2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Inserir o lançamento
+        INSERT INTO lancamento (data_operacao, codigo_conta, descricao_operacao, tipo_operacao, valor_operacao)
+        VALUES (@data_operacao, @codigo_conta, @descricao_operacao, @tipo_operacao, @valor_operacao);
+
+        -- A trigger será responsável por atualizar ou inserir o saldo
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+
+________________________________________________________________________________________________________________________________________________
+
+criando a trigger para att saldo
+
+CREATE TRIGGER trgAtualizarSaldo
+ON lancamento
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @codigo_conta INT, @data_operacao DATE, @tipo_operacao CHAR(1), @valor_operacao DECIMAL(18, 2);
+
+    SELECT @codigo_conta = i.codigo_conta, @data_operacao = CAST(i.data_operacao AS DATE), @tipo_operacao = i.tipo_operacao, @valor_operacao = i.valor_operacao
+    FROM inserted i;
+
+    IF EXISTS (SELECT 1 FROM saldo WHERE data_saldo = @data_operacao AND codigo_conta = @codigo_conta)
+    BEGIN
+        IF @tipo_operacao = 'C'
+        BEGIN
+            UPDATE saldo
+            SET valor_saldo = valor_saldo + @valor_operacao
+            WHERE data_saldo = @data_operacao AND codigo_conta = @codigo_conta;
+        END
+        ELSE IF @tipo_operacao = 'D'
+        BEGIN
+            UPDATE saldo
+            SET valor_saldo = valor_saldo - @valor_operacao
+            WHERE data_saldo = @data_operacao AND codigo_conta = @codigo_conta;
+        END
+    END
+    ELSE
+    BEGIN
+        IF @tipo_operacao = 'C'
+        BEGIN
+            INSERT INTO saldo (data_saldo, codigo_conta, valor_saldo)
+            VALUES (@data_operacao, @codigo_conta, @valor_operacao);
+        END
+        ELSE IF @tipo_operacao = 'D'
+        BEGIN
+            INSERT INTO saldo (data_saldo, codigo_conta, valor_saldo)
+            VALUES (@data_operacao, @codigo_conta, -@valor_operacao);
+        END
+    END
+END;
+
+________________________________________________________________________________________________________________________________________________
+
+criando procedure para transferencia de valores
+
+CREATE PROCEDURE spTransferirValor
+    @codigo_conta_origem INT,
+    @codigo_conta_destino INT,
+    @data_operacao DATETIME,
+    @valor_transferencia DECIMAL(18, 2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Debitar da conta de origem
+        EXEC spAdicionarLancamento @codigo_conta = @codigo_conta_origem, @data_operacao = @data_operacao, 
+                                   @descricao_operacao = 'Transferência para conta ' + CAST(@codigo_conta_destino AS VARCHAR),
+                                   @tipo_operacao = 'D', @valor_operacao = @valor_transferencia;
+
+        -- Creditar na conta de destino
+        EXEC spAdicionarLancamento @codigo_conta = @codigo_conta_destino, @data_operacao = @data_operacao, 
+                                   @descricao_operacao = 'Transferência da conta ' + CAST(@codigo_conta_origem AS VARCHAR),
+                                   @tipo_operacao = 'C', @valor_operacao = @valor_transferencia;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+________________________________________________________________________________________________________________________________________________
+
+criando trigger para transferencia - auditoria
+
+CREATE TRIGGER trgAuditoria
+ON conta, lancamento, saldo
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @event_data XML;
+    SET @event_data = EVENTDATA();
+
+    INSERT INTO log_auditoria (data_hora_operacao, tipo_operacao, nome_usuario, descricao)
+    VALUES (
+        GETDATE(),
+        @event_data.value('(/EVENT_INSTANCE/EventType)[1]', 'CHAR(1)'),
+        SUSER_SNAME(),
+        @event_data.value('(/EVENT_INSTANCE/TSQLCommand/CommandText)[1]', 'VARCHAR(255)')
+    );
+END;
+
+________________________________________________________________________________________________________________________________________________
+
+inserindo contas
+
+INSERT INTO conta (codigo_conta, nome_correntista, status) VALUES (1, 'João Silva', 1);
+INSERT INTO conta (codigo_conta, nome_correntista, status) VALUES (2, 'Maria Oliveira', 1);
+
+________________________________________________________________________________________________________________________________________________
+
+Exemplo de Chamada para Adicionar um Lançamento;
+
+Suponha que temos uma conta com codigo_conta = 1 e queremos adicionar um lançamento de crédito de R$ 500,00 no dia 28 de maio de 2024.
+
+EXEC spAdicionarLancamento 
+    @codigo_conta = 1,
+    @data_operacao = '2024-05-28 10:00:00',
+    @descricao_operacao = 'Depósito inicial',
+    @tipo_operacao = 'C',
+    @valor_operacao = 500.00;
+
+________________________________________________________________________________________________________________________________________________
+
+Exemplo de Chamada para Transferir Valores entre Contas;
+
+Suponha que queremos transferir R$ 200,00 da conta codigo_conta = 1 para a conta codigo_conta = 2 no dia 28 de maio de 2024.
+
+EXEC spTransferirValor
+    @codigo_conta_origem = 1,
+    @codigo_conta_destino = 2,
+    @data_operacao = '2024-05-28 11:00:00',
+    @valor_transferencia = 200.00;
+
+________________________________________________________________________________________________________________________________________________
