@@ -98,5 +98,50 @@ sinistros dessa placa. Tratar possíveis resultados NULL.
 Por fim, execute um SELECT na tabela carro (mostrando todos os campos), colocando uma chamada da função no SELECT
 LIST de sua consulta para que ela mostre todos os dados da tabela carro e ao final de todas as colunas, informe a
 quantidade de sinistros para cada placa
+
+CREATE FUNCTION dbo.fnQuantidadeSinistros (@placa VARCHAR(10))
+RETURNS INT
+AS
+BEGIN
+    DECLARE @quantidade INT;
+
+    SELECT @quantidade = COUNT(*)
+    FROM sinistro
+    WHERE placa = @placa;
+
+    RETURN ISNULL(@quantidade, 0);
+END;
 */
 
+7. Crie uma função que, passando um código de cliente como parâmetro de entrada, a função retorne a quantidade de
+apólices vencidas desse cliente. Tratar possíveis resultados NULL.
+Por fim, execute um SELECT na tabela cliente (mostrando todos os campos), colocando uma chamada da função no
+SELECT LIST de sua consulta para que ela mostre todos os dados da tabela cliente e ao final de todas as colunas, informe
+a quantidade de apólices vencidas para cada cliente.
+
+
+CREATE FUNCTION dbo.fnQuantidadeApolicesVencidas (@codigo_cliente INT)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @quantidade INT;
+
+    SELECT @quantidade = COUNT(*)
+    FROM apolice
+    WHERE codigo_cliente = @codigo_cliente
+      AND data_vencimento < GETDATE();
+
+    RETURN ISNULL(@quantidade, 0);
+END;
+
+
+
+
+SELECT 
+    codigo_cliente,
+    nome_cliente,
+    email_cliente,
+    telefone_cliente,
+    dbo.fnQuantidadeApolicesVencidas(codigo_cliente) AS quantidade_apolices_vencidas
+FROM 
+    cliente;
